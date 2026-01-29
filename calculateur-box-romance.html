@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur Box Romance - BookMeAKiss</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #fff5f8 50%, #fef0f5 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #d4648a;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(212, 100, 138, 0.1);
+            border: 1px solid rgba(212, 100, 138, 0.1);
+        }
+
+        .card h2 {
+            color: #d4648a;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ffeef8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2 .icon {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #f0e0e8;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #d4648a;
+            box-shadow: 0 0 10px rgba(212, 100, 138, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group .suffix {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .input-group input {
+            padding-right: 40px;
+        }
+
+        /* Tableau des coûts */
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .cost-table th, .cost-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f0e0e8;
+        }
+
+        .cost-table th {
+            background: #ffeef8;
+            color: #d4648a;
+            font-weight: 600;
+        }
+
+        .cost-table tr:hover {
+            background: #fff9fc;
+        }
+
+        .cost-table .total-row {
+            background: linear-gradient(135deg, #d4648a, #e8879f);
+            color: white;
+        }
+
+        .cost-table .total-row td {
+            font-weight: bold;
+            border: none;
+        }
+
+        /* Résultats */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #ffeef8, #fff5f8);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .result-box.highlight {
+            background: linear-gradient(135deg, #d4648a, #e8879f);
+            color: white;
+        }
+
+        .result-box.highlight .label {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .result-box .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #d4648a;
+        }
+
+        .result-box.highlight .value {
+            color: white;
+        }
+
+        .result-box .label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .result-box.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Barre de progression rentabilité */
+        .progress-container {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: #f0e0e8;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b9d, #d4648a);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        /* Ajout d'items dynamiques */
+        .add-item-btn {
+            background: linear-gradient(135deg, #d4648a, #e8879f);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .add-item-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 100, 138, 0.3);
+        }
+
+        .removable-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .removable-row input {
+            flex: 1;
+        }
+
+        .remove-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #ee5a5a;
+        }
+
+        /* Section impôts */
+        .tax-info {
+            background: #fff9fc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #d4648a;
+        }
+
+        .tax-info p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .tax-info strong {
+            color: #d4648a;
+        }
+
+        /* Graphique simple */
+        .chart-container {
+            margin-top: 20px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 2px solid #f0e0e8;
+        }
+
+        .bar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bar-fill {
+            width: 60px;
+            background: linear-gradient(180deg, #d4648a, #e8879f);
+            border-radius: 10px 10px 0 0;
+            transition: height 0.5s ease;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .bar-label {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Info tooltip */
+        .info-tip {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #d4648a;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 0.75rem;
+            line-height: 18px;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        .goodies-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Scrollbar style */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f0e0e8;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d4648a;
+            border-radius: 4px;
+        }
+
+        .summary-section {
+            margin-top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #f0e0e8;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row .label {
+            color: #666;
+        }
+
+        .summary-row .value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .summary-row.negative .value {
+            color: #ff6b6b;
+        }
+
+        .summary-row.positive .value {
+            color: #4CAF50;
+        }
+
+        .summary-row.total {
+            background: linear-gradient(135deg, #d4648a, #e8879f);
+            margin: 10px -25px -25px;
+            padding: 20px 25px;
+            border-radius: 0 0 20px 20px;
+            color: white;
+        }
+
+        .summary-row.total .label,
+        .summary-row.total .value {
+            color: white;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calculateur Box Romance</h1>
+            <p class="subtitle">BookMeAKiss - Calcule ta rentabilité en quelques clics</p>
+        </header>
+
+        <div class="grid">
+            <!-- Coûts de production -->
+            <div class="card">
+                <h2><span class="icon">📦</span> Coûts de Production (par box)</h2>
+
+                <div class="form-group">
+                    <label>Prix du livre</label>
+                    <div class="input-group">
+                        <input type="number" id="prixLivre" value="8" step="0.01" oninput="calculer()">
+                        <span class="suffix">€</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Prix du carton / packaging</label>
+                    <div class="input-group">
+                        <input type="number" id="prixCarton" value="2.50" step="0.01" oninput="calculer()">
+                        <span class="suffix">€</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Papier de soie / calage</label>
+                    <div class="input-group">
+                        <input type="number" id="prixPapier" value="0.50" step="0.01" oninput="calculer()">
+                        <span class="suffix">€</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Frais d'envoi (par box)</label>
+                    <div class="input-group">
+                        <input type="number" id="fraisEnvoi" value="6.50" step="0.01" oninput="calculer()">
+                        <span class="suffix">€</span>
+                    </div>
+                </div>
+
+                <h3 style="color: #d4648a; margin: 20px 0 15px; font-size: 1rem;">Goodies</h3>
+                <div class="goodies-list" id="goodiesList">
+                    <div class="removable-row">
+                        <input type="text" placeholder="Nom du goodie" value="Marque-page">
+                        <div class="input-group" style="width: 120px;">
+                            <input type="number" value="1.50" step="0.01" class="goodie-price" oninput="calculer()">
+                            <span class="suffix">€</span>
+                        </div>
+                        <button class="remove-btn" onclick="removeGoodie(this)">×</button>
+                    </div>
+                    <div class="removable-row">
+                        <input type="text" placeholder="Nom du goodie" value="Stickers">
+                        <div class="input-group" style="width: 120px;">
+                            <input type="number" value="1.00" step="0.01" class="goodie-price" oninput="calculer()">
+                            <span class="suffix">€</span>
+                        </div>
+                        <button class="remove-btn" onclick="removeGoodie(this)">×</button>
+                    </div>
+                    <div class="removable-row">
+                        <input type="text" placeholder="Nom du goodie" value="Carte postale">
+                        <div class="input-group" style="width: 120px;">
+                            <input type="number" value="0.80" step="0.01" class="goodie-price" oninput="calculer()">
+                            <span class="suffix">€</span>
+                        </div>
+                        <button class="remove-btn" onclick="removeGoodie(this)">×</button>
+                    </div>
+                </div>
+                <button class="add-item-btn" onclick="addGoodie()">+ Ajouter un goodie</button>
+            </div>
+
+            <!-- Prix de vente et paramètres -->
+            <div class="card">
+                <h2><span class="icon">💰</span> Prix de Vente & Paramètres</h2>
+
+                <div class="form-group">
+                    <label>Prix de vente de la box (TTC) <span class="info-tip" title="Prix auquel tu vends ta box aux clients">?</span></label>
+                    <div class="input-group">
+                        <input type="number" id="prixVente" value="35" step="0.01" oninput="calculer()">
+                        <span class="suffix">€</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>TVA applicable</label>
+                        <div class="input-group">
+                            <input type="number" id="tva" value="20" step="0.1" oninput="calculer()">
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Charges / frais divers</label>
+                        <div class="input-group">
+                            <input type="number" id="charges" value="5" step="0.1" oninput="calculer()">
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Frais fixes mensuels (hébergement, abonnements, etc.)</label>
+                    <div class="input-group">
+                        <input type="number" id="fraisFixes" value="50" step="1" oninput="calculer()">
+                        <span class="suffix">€/mois</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre de box à vendre ce mois</label>
+                    <div class="input-group">
+                        <input type="number" id="nbBoxVendues" value="50" step="1" oninput="calculer()">
+                        <span class="suffix">box</span>
+                    </div>
+                </div>
+
+                <div class="tax-info">
+                    <p><strong>Note fiscale :</strong></p>
+                    <p>• Micro-entreprise : 12,3% de cotisations + 1,7% versement libératoire IR (vente)</p>
+                    <p>• SARL/SAS : ~25% d'impôt sur les sociétés sur le bénéfice</p>
+                    <div class="form-group" style="margin-top: 15px; margin-bottom: 0;">
+                        <label>Taux d'imposition estimé sur bénéfice</label>
+                        <div class="input-group">
+                            <input type="number" id="tauxImpot" value="14" step="0.1" oninput="calculer()">
+                            <span class="suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Récapitulatif des coûts -->
+            <div class="card">
+                <h2><span class="icon">📊</span> Récapitulatif des Coûts par Box</h2>
+
+                <table class="cost-table">
+                    <thead>
+                        <tr>
+                            <th>Élément</th>
+                            <th>Coût</th>
+                        </tr>
+                    </thead>
+                    <tbody id="costTableBody">
+                        <!-- Rempli par JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Résultats -->
+            <div class="card">
+                <h2><span class="icon">✨</span> Résultats</h2>
+
+                <div class="results-grid">
+                    <div class="result-box">
+                        <div class="value" id="coutTotal">0 €</div>
+                        <div class="label">Coût total / box</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="value" id="margeBox">0 €</div>
+                        <div class="label">Marge brute / box</div>
+                    </div>
+                    <div class="result-box highlight">
+                        <div class="value" id="seuilRentabilite">0</div>
+                        <div class="label">Seuil de rentabilité (box/mois)</div>
+                    </div>
+                    <div class="result-box highlight">
+                        <div class="value" id="tauxMarge">0%</div>
+                        <div class="label">Taux de marge</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <p style="color: #666; margin-bottom: 10px; font-size: 0.9rem;">Progression vers la rentabilité</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>0 box</span>
+                        <span id="seuilLabel">Seuil: 0 box</span>
+                        <span id="objectifLabel">Objectif: 0 box</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bilan financier mensuel -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2><span class="icon">📈</span> Bilan Financier Mensuel</h2>
+
+                <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                    <div>
+                        <div class="summary-section">
+                            <div class="summary-row">
+                                <span class="label">Chiffre d'affaires TTC</span>
+                                <span class="value" id="caTTC">0 €</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="label">TVA collectée</span>
+                                <span class="value" id="tvaCollectee">0 €</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="label">Chiffre d'affaires HT</span>
+                                <span class="value" id="caHT">0 €</span>
+                            </div>
+                            <div class="summary-row negative">
+                                <span class="label">Coût total de production</span>
+                                <span class="value" id="coutTotalProd">- 0 €</span>
+                            </div>
+                            <div class="summary-row negative">
+                                <span class="label">Frais fixes</span>
+                                <span class="value" id="fraisFixesTotal">- 0 €</span>
+                            </div>
+                            <div class="summary-row negative">
+                                <span class="label">Charges diverses</span>
+                                <span class="value" id="chargesTotal">- 0 €</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="label">Bénéfice avant impôts</span>
+                                <span class="value" id="beneficeAvantImpot">0 €</span>
+                            </div>
+                            <div class="summary-row negative">
+                                <span class="label">Impôts estimés</span>
+                                <span class="value" id="impots">- 0 €</span>
+                            </div>
+                        </div>
+                        <div class="summary-row total">
+                            <span class="label">BÉNÉFICE NET</span>
+                            <span class="value" id="beneficeNet">0 €</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <p style="color: #666; margin-bottom: 10px; font-size: 0.9rem; text-align: center;">Répartition du prix de vente</p>
+                        <div class="bar-chart">
+                            <div class="bar">
+                                <div class="bar-fill" id="barCouts" style="height: 50%;"></div>
+                                <span class="bar-label">Coûts</span>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill" id="barFrais" style="height: 30%; background: linear-gradient(180deg, #ffa07a, #ff6347);"></div>
+                                <span class="bar-label">Frais & Charges</span>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill" id="barImpots" style="height: 20%; background: linear-gradient(180deg, #ffd700, #ffa500);"></div>
+                                <span class="bar-label">Impôts</span>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill" id="barBenefice" style="height: 40%; background: linear-gradient(180deg, #90EE90, #32CD32);"></div>
+                                <span class="bar-label">Bénéfice</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulation -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2><span class="icon">🎯</span> Objectifs & Simulation</h2>
+
+                <div class="results-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="result-box">
+                        <div class="value" id="obj100">0 box</div>
+                        <div class="label">Pour 100€ net/mois</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="value" id="obj500">0 box</div>
+                        <div class="label">Pour 500€ net/mois</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="value" id="obj1000">0 box</div>
+                        <div class="label">Pour 1000€ net/mois</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="value" id="obj2000">0 box</div>
+                        <div class="label">Pour 2000€ net/mois</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getGoodiesTotal() {
+            const prices = document.querySelectorAll('.goodie-price');
+            let total = 0;
+            prices.forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            return total;
+        }
+
+        function addGoodie() {
+            const list = document.getElementById('goodiesList');
+            const div = document.createElement('div');
+            div.className = 'removable-row';
+            div.innerHTML = `
+                <input type="text" placeholder="Nom du goodie" value="">
+                <div class="input-group" style="width: 120px;">
+                    <input type="number" value="0" step="0.01" class="goodie-price" oninput="calculer()">
+                    <span class="suffix">€</span>
+                </div>
+                <button class="remove-btn" onclick="removeGoodie(this)">×</button>
+            `;
+            list.appendChild(div);
+        }
+
+        function removeGoodie(btn) {
+            btn.parentElement.remove();
+            calculer();
+        }
+
+        function calculer() {
+            // Récupération des valeurs
+            const prixLivre = parseFloat(document.getElementById('prixLivre').value) || 0;
+            const prixCarton = parseFloat(document.getElementById('prixCarton').value) || 0;
+            const prixPapier = parseFloat(document.getElementById('prixPapier').value) || 0;
+            const fraisEnvoi = parseFloat(document.getElementById('fraisEnvoi').value) || 0;
+            const goodiesTotal = getGoodiesTotal();
+
+            const prixVente = parseFloat(document.getElementById('prixVente').value) || 0;
+            const tva = parseFloat(document.getElementById('tva').value) || 0;
+            const charges = parseFloat(document.getElementById('charges').value) || 0;
+            const fraisFixes = parseFloat(document.getElementById('fraisFixes').value) || 0;
+            const nbBoxVendues = parseInt(document.getElementById('nbBoxVendues').value) || 0;
+            const tauxImpot = parseFloat(document.getElementById('tauxImpot').value) || 0;
+
+            // Calculs
+            const coutTotalBox = prixLivre + prixCarton + prixPapier + fraisEnvoi + goodiesTotal;
+            const prixVenteHT = prixVente / (1 + tva / 100);
+            const tvaParBox = prixVente - prixVenteHT;
+            const chargesParBox = prixVenteHT * (charges / 100);
+            const margeBrute = prixVenteHT - coutTotalBox - chargesParBox;
+            const tauxMarge = prixVenteHT > 0 ? (margeBrute / prixVenteHT * 100) : 0;
+
+            // Seuil de rentabilité
+            const seuilRentabilite = margeBrute > 0 ? Math.ceil(fraisFixes / margeBrute) : 999;
+
+            // Bilan mensuel
+            const caTTC = prixVente * nbBoxVendues;
+            const tvaCollectee = tvaParBox * nbBoxVendues;
+            const caHT = prixVenteHT * nbBoxVendues;
+            const coutTotalProd = coutTotalBox * nbBoxVendues;
+            const chargesTotal = chargesParBox * nbBoxVendues;
+            const beneficeAvantImpot = caHT - coutTotalProd - fraisFixes - chargesTotal;
+            const impots = beneficeAvantImpot > 0 ? beneficeAvantImpot * (tauxImpot / 100) : 0;
+            const beneficeNet = beneficeAvantImpot - impots;
+
+            // Mise à jour du tableau des coûts
+            const costTableBody = document.getElementById('costTableBody');
+            const goodiesRows = document.querySelectorAll('.removable-row');
+            let goodiesDetails = '';
+            goodiesRows.forEach(row => {
+                const name = row.querySelector('input[type="text"]').value || 'Goodie';
+                const price = parseFloat(row.querySelector('.goodie-price').value) || 0;
+                goodiesDetails += `<tr><td style="padding-left: 30px; color: #888;">↳ ${name}</td><td>${price.toFixed(2)} €</td></tr>`;
+            });
+
+            costTableBody.innerHTML = `
+                <tr><td>Livre</td><td>${prixLivre.toFixed(2)} €</td></tr>
+                <tr><td>Carton / Packaging</td><td>${prixCarton.toFixed(2)} €</td></tr>
+                <tr><td>Papier de soie / Calage</td><td>${prixPapier.toFixed(2)} €</td></tr>
+                <tr><td>Goodies (total)</td><td>${goodiesTotal.toFixed(2)} €</td></tr>
+                ${goodiesDetails}
+                <tr><td>Frais d'envoi</td><td>${fraisEnvoi.toFixed(2)} €</td></tr>
+                <tr class="total-row"><td>TOTAL</td><td>${coutTotalBox.toFixed(2)} €</td></tr>
+            `;
+
+            // Mise à jour des résultats
+            document.getElementById('coutTotal').textContent = coutTotalBox.toFixed(2) + ' €';
+            document.getElementById('margeBox').textContent = margeBrute.toFixed(2) + ' €';
+            document.getElementById('seuilRentabilite').textContent = seuilRentabilite;
+            document.getElementById('tauxMarge').textContent = tauxMarge.toFixed(1) + '%';
+
+            // Progression
+            const progress = nbBoxVendues >= seuilRentabilite ? 100 : (seuilRentabilite > 0 ? (nbBoxVendues / seuilRentabilite * 100) : 0);
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = Math.min(progress, 100) + '%';
+            progressFill.textContent = progress.toFixed(0) + '%';
+            progressFill.style.background = progress >= 100 ? 'linear-gradient(90deg, #32CD32, #228B22)' : 'linear-gradient(90deg, #ff6b9d, #d4648a)';
+
+            document.getElementById('seuilLabel').textContent = 'Seuil: ' + seuilRentabilite + ' box';
+            document.getElementById('objectifLabel').textContent = 'Objectif: ' + nbBoxVendues + ' box';
+
+            // Bilan financier
+            document.getElementById('caTTC').textContent = caTTC.toFixed(2) + ' €';
+            document.getElementById('tvaCollectee').textContent = tvaCollectee.toFixed(2) + ' €';
+            document.getElementById('caHT').textContent = caHT.toFixed(2) + ' €';
+            document.getElementById('coutTotalProd').textContent = '- ' + coutTotalProd.toFixed(2) + ' €';
+            document.getElementById('fraisFixesTotal').textContent = '- ' + fraisFixes.toFixed(2) + ' €';
+            document.getElementById('chargesTotal').textContent = '- ' + chargesTotal.toFixed(2) + ' €';
+            document.getElementById('beneficeAvantImpot').textContent = beneficeAvantImpot.toFixed(2) + ' €';
+            document.getElementById('impots').textContent = '- ' + impots.toFixed(2) + ' €';
+            document.getElementById('beneficeNet').textContent = beneficeNet.toFixed(2) + ' €';
+
+            // Couleur du bénéfice
+            const beneficeRow = document.querySelector('.summary-row.total');
+            if (beneficeNet > 0) {
+                beneficeRow.style.background = 'linear-gradient(135deg, #32CD32, #228B22)';
+            } else if (beneficeNet < 0) {
+                beneficeRow.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a5a)';
+            } else {
+                beneficeRow.style.background = 'linear-gradient(135deg, #d4648a, #e8879f)';
+            }
+
+            // Graphique barres
+            const maxHeight = 180;
+            const total = coutTotalBox + chargesParBox + (impots / nbBoxVendues || 0) + (margeBrute > 0 ? margeBrute : 0);
+
+            document.getElementById('barCouts').style.height = (coutTotalBox / prixVenteHT * maxHeight) + 'px';
+            document.getElementById('barCouts').textContent = ((coutTotalBox / prixVenteHT) * 100).toFixed(0) + '%';
+
+            document.getElementById('barFrais').style.height = ((chargesParBox + fraisFixes/nbBoxVendues) / prixVenteHT * maxHeight) + 'px';
+            document.getElementById('barFrais').textContent = (((chargesParBox + fraisFixes/nbBoxVendues) / prixVenteHT) * 100).toFixed(0) + '%';
+
+            const impotParBox = nbBoxVendues > 0 ? impots / nbBoxVendues : 0;
+            document.getElementById('barImpots').style.height = (impotParBox / prixVenteHT * maxHeight) + 'px';
+            document.getElementById('barImpots').textContent = ((impotParBox / prixVenteHT) * 100).toFixed(0) + '%';
+
+            const beneficeParBox = nbBoxVendues > 0 ? beneficeNet / nbBoxVendues : 0;
+            document.getElementById('barBenefice').style.height = Math.max(beneficeParBox / prixVenteHT * maxHeight, 0) + 'px';
+            document.getElementById('barBenefice').textContent = ((beneficeParBox / prixVenteHT) * 100).toFixed(0) + '%';
+
+            // Objectifs
+            function calculerBoxPourObjectif(objectifNet) {
+                // beneficeNet = (margeBrute * n - fraisFixes) * (1 - tauxImpot/100)
+                // objectifNet = (margeBrute * n - fraisFixes) * (1 - tauxImpot/100)
+                // objectifNet / (1 - tauxImpot/100) = margeBrute * n - fraisFixes
+                // n = (objectifNet / (1 - tauxImpot/100) + fraisFixes) / margeBrute
+                if (margeBrute <= 0) return '∞';
+                const facteurImpot = 1 - tauxImpot / 100;
+                const n = Math.ceil((objectifNet / facteurImpot + fraisFixes) / margeBrute);
+                return n;
+            }
+
+            document.getElementById('obj100').textContent = calculerBoxPourObjectif(100) + ' box';
+            document.getElementById('obj500').textContent = calculerBoxPourObjectif(500) + ' box';
+            document.getElementById('obj1000').textContent = calculerBoxPourObjectif(1000) + ' box';
+            document.getElementById('obj2000').textContent = calculerBoxPourObjectif(2000) + ' box';
+        }
+
+        // Calcul initial
+        calculer();
+    </script>
+</body>
+</html>
